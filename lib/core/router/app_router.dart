@@ -13,7 +13,7 @@ class AppRouter {
   static const String adminDashboard = '/admin-dashboard';
 
   static final GoRouter router = GoRouter(
-    initialLocation: roleSelection,
+    initialLocation: portfolio,
     routes: [
       GoRoute(
         path: roleSelection,

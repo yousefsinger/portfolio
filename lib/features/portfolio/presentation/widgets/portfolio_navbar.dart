@@ -69,15 +69,15 @@ class PortfolioNavbar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(
-                Icons.logout_rounded,
-                size: 20,
-                color: AppColors.purple,
-              ),
-              onPressed: () => context.go(AppRouter.roleSelection),
-              tooltip: 'Change Role',
-            ),
+            // IconButton(
+            //   icon: const Icon(
+            //     Icons.logout_rounded,
+            //     size: 20,
+            //     color: AppColors.purple,
+            //   ),
+            //   onPressed: () => context.go(AppRouter.roleSelection),
+            //   tooltip: 'Change Role',
+            // ),
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,

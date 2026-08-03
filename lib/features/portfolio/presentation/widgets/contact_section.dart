@@ -44,14 +44,32 @@ class ContactSection extends StatelessWidget {
                           ContactInfo(
                             svgPath: 'assets/icons/gmailicon.svg',
                             text: email,
-                            onTap: () => launchUrl(Uri.parse('mailto:$email')),
+                            onTap: () async {
+                              final Uri emailLaunchUri = Uri(
+                                scheme: 'mailto',
+                                path: email.trim(),
+                              );
+                              if (await canLaunchUrl(emailLaunchUri)) {
+                                await launchUrl(emailLaunchUri,
+                                    mode: LaunchMode.externalApplication);
+                              }
+                            },
                           ),
                         if (hasEmail && hasPhone) const SizedBox(width: 40),
                         if (hasPhone)
                           ContactInfo(
                             icon: Icons.phone_outlined,
                             text: phone,
-                            onTap: () => launchUrl(Uri.parse('tel:$phone')),
+                            onTap: () async {
+                              final Uri phoneUri = Uri(
+                                scheme: 'tel',
+                                path: phone.trim(),
+                              );
+                              if (await canLaunchUrl(phoneUri)) {
+                                await launchUrl(phoneUri,
+                                    mode: LaunchMode.externalApplication);
+                              }
+                            },
                           ),
                       ],
                     ),

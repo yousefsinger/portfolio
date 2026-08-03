@@ -182,7 +182,12 @@ class _CertificateCard extends StatelessWidget {
           if ((certificate.credentialUrl?.trim().isNotEmpty ?? false)) ...[
             const SizedBox(height: 16),
             OutlinedButton.icon(
-              onPressed: () => launchUrl(Uri.parse(certificate.credentialUrl!)),
+              onPressed: () async {
+                final uri = Uri.parse(certificate.credentialUrl!.trim());
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+              },
               icon: const Icon(Icons.open_in_new_rounded, size: 14),
               label: const Text('View Credential'),
               style: OutlinedButton.styleFrom(

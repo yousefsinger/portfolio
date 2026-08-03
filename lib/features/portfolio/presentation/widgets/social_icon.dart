@@ -45,7 +45,12 @@ class _SocialIconState extends State<SocialIcon> {
       child: Tooltip(
         message: widget.tooltip,
         child: GestureDetector(
-          onTap: () => launchUrl(Uri.parse(widget.url)),
+          onTap: () async {
+            final uri = Uri.parse(widget.url.trim());
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          },
           child: ValueListenableBuilder<bool>(
             valueListenable: _hoveredNotifier,
             builder: (context, hovered, _) {

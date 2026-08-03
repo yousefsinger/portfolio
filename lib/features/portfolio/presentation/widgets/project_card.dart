@@ -143,7 +143,13 @@ class _ProjectCardState extends State<ProjectCard> {
                 if ((project.githubUrl?.trim().isNotEmpty ?? false)) ...[
                   const SizedBox(height: 16),
                   TextButton.icon(
-                    onPressed: () => launchUrl(Uri.parse(project.githubUrl!)),
+                    onPressed: () async {
+                      final uri = Uri.parse(project.githubUrl!.trim());
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
                     icon: const Icon(Icons.code_rounded, size: 16),
                     label: const Text('View Code'),
                     style: TextButton.styleFrom(

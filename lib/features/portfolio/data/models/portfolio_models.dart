@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/portfolio_entities.dart';
 
 class ProfileModel extends ProfileEntity {
@@ -79,6 +80,7 @@ class ProjectModel extends ProjectEntity {
     required super.tags,
     super.githubUrl,
     super.playStoreUrl,
+    super.createdAt,
   });
 
   factory ProjectModel.fromFirestore(Map<String, dynamic> map, String id) {
@@ -90,6 +92,9 @@ class ProjectModel extends ProjectEntity {
       tags: List<String>.from(map['tags'] ?? []),
       githubUrl: map['githubUrl'],
       playStoreUrl: map['playStoreUrl'],
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : null,
     );
   }
 
@@ -100,6 +105,7 @@ class ProjectModel extends ProjectEntity {
         'tags': tags,
         'githubUrl': githubUrl,
         'playStoreUrl': playStoreUrl,
+        'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
       };
 }
 

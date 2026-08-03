@@ -72,6 +72,14 @@ class PortfolioRepositoryImpl implements PortfolioRepository {
       );
     }).toList();
 
+    // Sort projects by createdAt descending (latest first)
+    projects.sort((a, b) {
+      if (a.createdAt == null && b.createdAt == null) return 0;
+      if (a.createdAt == null) return 1;
+      if (b.createdAt == null) return -1;
+      return b.createdAt!.compareTo(a.createdAt!);
+    });
+
     final certificates = certsDocs.docs.map((doc) {
       return CertificateModel.fromFirestore(
         doc.data() as Map<String, dynamic>,

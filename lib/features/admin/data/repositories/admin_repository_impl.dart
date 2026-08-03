@@ -73,6 +73,7 @@ class AdminRepositoryImpl implements AdminRepository {
         tags: project.tags,
         githubUrl: project.githubUrl,
         playStoreUrl: project.playStoreUrl,
+        createdAt: DateTime.now(), // Set current time for new projects
       ).toFirestore(),
     );
   }
@@ -88,6 +89,7 @@ class AdminRepositoryImpl implements AdminRepository {
             tags: project.tags,
             githubUrl: project.githubUrl,
             playStoreUrl: project.playStoreUrl,
+            createdAt: project.createdAt, // Keep existing timestamp
           ).toFirestore(),
         );
   }

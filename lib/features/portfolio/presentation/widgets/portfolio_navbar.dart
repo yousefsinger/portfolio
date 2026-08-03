@@ -60,6 +60,15 @@ class PortfolioNavbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 40),
         child: Row(
           children: [
+          IconButton(
+            icon: const Icon(
+              Icons.logout_rounded,
+              size: 5,
+              color: AppColors.purple,
+            ),
+            onPressed: () => context.go(AppRouter.roleSelection),
+          ),
+            const SizedBox(width: 8),
             const Text(
               'YA.',
               style: TextStyle(
@@ -69,15 +78,6 @@ class PortfolioNavbar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // IconButton(
-            //   icon: const Icon(
-            //     Icons.logout_rounded,
-            //     size: 20,
-            //     color: AppColors.purple,
-            //   ),
-            //   onPressed: () => context.go(AppRouter.roleSelection),
-            //   tooltip: 'Change Role',
-            // ),
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,

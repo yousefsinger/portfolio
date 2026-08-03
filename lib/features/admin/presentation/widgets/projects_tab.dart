@@ -221,6 +221,7 @@ class ProjectsTab extends StatelessWidget {
                             playStoreUrl: playStoreCtrl.text.trim().isEmpty
                                 ? null
                                 : playStoreCtrl.text.trim(),
+                            createdAt: existingProject?.createdAt,
                           );
                           if (isEditing) {
                             adminCubit.updateProject(updatedProject);

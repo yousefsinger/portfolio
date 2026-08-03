@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, mode) {
           return MaterialApp.router(
-            title: 'Your Name',
+            title: 'Youssef Ahmed | Flutter Developer',
             debugShowCheckedModeBanner: false,
             routerConfig: AppRouter.router,
             themeMode: mode,

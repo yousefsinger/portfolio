@@ -76,7 +76,7 @@ class ProjectModel extends ProjectEntity {
     required super.id,
     required super.title,
     required super.description,
-    required super.imageUrl,
+    required super.imageUrls,
     required super.tags,
     super.githubUrl,
     super.playStoreUrl,
@@ -84,11 +84,19 @@ class ProjectModel extends ProjectEntity {
   });
 
   factory ProjectModel.fromFirestore(Map<String, dynamic> map, String id) {
+    // Handle migration from single imageUrl if needed
+    List<String> urls = [];
+    if (map['imageUrls'] != null) {
+      urls = List<String>.from(map['imageUrls']);
+    } else if (map['imageUrl'] != null && map['imageUrl'].toString().isNotEmpty) {
+      urls = [map['imageUrl'].toString()];
+    }
+
     return ProjectModel(
       id: id,
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-      imageUrl: map['imageUrl'] ?? '',
+      imageUrls: urls,
       tags: List<String>.from(map['tags'] ?? []),
       githubUrl: map['githubUrl'],
       playStoreUrl: map['playStoreUrl'],
@@ -101,11 +109,13 @@ class ProjectModel extends ProjectEntity {
   Map<String, dynamic> toFirestore() => {
         'title': title,
         'description': description,
-        'imageUrl': imageUrl,
+        'imageUrls': imageUrls,
         'tags': tags,
         'githubUrl': githubUrl,
         'playStoreUrl': playStoreUrl,
-        'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
+        'createdAt': createdAt != null
+            ? Timestamp.fromDate(createdAt!)
+            : FieldValue.serverTimestamp(),
       };
 }
 

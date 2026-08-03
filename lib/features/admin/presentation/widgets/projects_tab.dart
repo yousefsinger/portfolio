@@ -51,15 +51,15 @@ class ProjectsTab extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.purple.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
-                          image: p.imageUrl.isNotEmpty
+                          image: p.imageUrls.isNotEmpty
                               ? DecorationImage(
                                   image:
-                                      NetworkImage(convertDriveUrl(p.imageUrl)),
+                                      NetworkImage(convertDriveUrl(p.imageUrls.first)),
                                   fit: BoxFit.cover,
                                 )
                               : null,
                         ),
-                        child: p.imageUrl.isEmpty
+                        child: p.imageUrls.isEmpty
                             ? const Icon(Icons.image_outlined,
                                 color: AppColors.purple)
                             : null,
@@ -113,8 +113,8 @@ class ProjectsTab extends StatelessWidget {
     final titleCtrl = TextEditingController(text: existingProject?.title ?? '');
     final descCtrl =
         TextEditingController(text: existingProject?.description ?? '');
-    final imgUrlCtrl =
-        TextEditingController(text: existingProject?.imageUrl ?? '');
+    final imgUrlsCtrl =
+        TextEditingController(text: existingProject?.imageUrls.join(', ') ?? '');
     final tagsCtrl =
         TextEditingController(text: existingProject?.tags.join(', ') ?? '');
     final githubCtrl =
@@ -130,6 +130,13 @@ class ProjectsTab extends StatelessWidget {
               value: adminCubit,
               child: StatefulBuilder(
                 builder: (context, setState) {
+                  final urls = imgUrlsCtrl.text
+                      .split(',')
+                      .map((e) => e.trim())
+                      .where((e) => e.isNotEmpty)
+                      .toList();
+                  final previewUrl = urls.isNotEmpty ? urls.first : '';
+
                   return AlertDialog(
                     backgroundColor:
                         Theme.of(context).brightness == Brightness.dark
@@ -156,11 +163,11 @@ class ProjectsTab extends StatelessWidget {
                                     color: AppColors.purple
                                         .withValues(alpha: 0.2)),
                               ),
-                              child: imgUrlCtrl.text.isNotEmpty
+                              child: previewUrl.isNotEmpty
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.network(
-                                        convertDriveUrl(imgUrlCtrl.text),
+                                        convertDriveUrl(previewUrl),
                                         fit: BoxFit.cover,
                                         errorBuilder: (_, __, ___) =>
                                             const Center(
@@ -177,9 +184,9 @@ class ProjectsTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             TextField(
-                              controller: imgUrlCtrl,
+                              controller: imgUrlsCtrl,
                               decoration: const InputDecoration(
-                                  hintText: 'Project Image URL'),
+                                  hintText: 'Project Image URLs (comma separated)'),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
@@ -209,11 +216,17 @@ class ProjectsTab extends StatelessWidget {
                               .map((e) => e.trim())
                               .where((e) => e.isNotEmpty)
                               .toList();
+                          final imageUrls = imgUrlsCtrl.text
+                              .split(',')
+                              .map((e) => e.trim())
+                              .where((e) => e.isNotEmpty)
+                              .toList();
+
                           final updatedProject = ProjectEntity(
                             id: existingProject?.id ?? '',
                             title: titleCtrl.text.trim(),
                             description: descCtrl.text.trim(),
-                            imageUrl: imgUrlCtrl.text.trim(),
+                            imageUrls: imageUrls,
                             tags: tags,
                             githubUrl: githubCtrl.text.trim().isEmpty
                                 ? null
@@ -237,5 +250,5 @@ class ProjectsTab extends StatelessWidget {
                 },
               ),
             ));
-  }
+}
 }

@@ -64,7 +64,7 @@ class ProjectEntity extends Equatable {
   final String id;
   final String title;
   final String description;
-  final String imageUrl;
+  final List<String> imageUrls;
   final List<String> tags;
   final String? githubUrl;
   final String? playStoreUrl;
@@ -74,7 +74,7 @@ class ProjectEntity extends Equatable {
     required this.id,
     required this.title,
     required this.description,
-    required this.imageUrl,
+    required this.imageUrls,
     required this.tags,
     this.githubUrl,
     this.playStoreUrl,
@@ -83,7 +83,7 @@ class ProjectEntity extends Equatable {
 
   @override
   List<Object?> get props =>
-      [id, title, description, imageUrl, tags, githubUrl, playStoreUrl, createdAt];
+      [id, title, description, imageUrls, tags, githubUrl, playStoreUrl, createdAt];
 }
 
 class CertificateEntity extends Equatable {

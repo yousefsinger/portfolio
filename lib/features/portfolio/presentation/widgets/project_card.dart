@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,14 +9,58 @@ import '../../../../core/utils/drive_url_helper.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../domain/entities/portfolio_entities.dart';
 
-class ProjectCard extends StatelessWidget {
+class ProjectCard extends StatefulWidget {
   final ProjectEntity project;
   final int delay;
 
   const ProjectCard({super.key, required this.project, required this.delay});
 
   @override
+  State<ProjectCard> createState() => _ProjectCardState();
+}
+
+class _ProjectCardState extends State<ProjectCard> {
+  late PageController _pageController;
+  Timer? _timer;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+
+    if (widget.project.imageUrls.length > 1) {
+      _startTimer();
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_pageController.hasClients) {
+        _currentPage++;
+        if (_currentPage >= widget.project.imageUrls.length) {
+          _currentPage = 0;
+        }
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final project = widget.project;
+
     return GradientBorderCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -27,17 +73,25 @@ class ProjectCard extends StatelessWidget {
             ),
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: project.imageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: convertDriveUrl(project.imageUrl),
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.purple,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => _imagePlaceholder(),
+              child: project.imageUrls.isNotEmpty
+                  ? PageView.builder(
+                      controller: _pageController,
+                      itemCount: project.imageUrls.length,
+                      onPageChanged: (index) => _currentPage = index,
+                      itemBuilder: (context, index) {
+                        return CachedNetworkImage(
+                          imageUrl: convertDriveUrl(project.imageUrls[index]),
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.purple,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              _imagePlaceholder(),
+                        );
+                      },
                     )
                   : _imagePlaceholder(),
             ),
@@ -103,7 +157,7 @@ class ProjectCard extends StatelessWidget {
         ],
       ),
     )
-        .animate(delay: Duration(milliseconds: delay))
+        .animate(delay: Duration(milliseconds: widget.delay))
         .fadeIn(duration: 600.ms)
         .slideY(begin: 0.3, end: 0);
   }

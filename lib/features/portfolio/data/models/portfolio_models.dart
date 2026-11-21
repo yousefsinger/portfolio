@@ -1,6 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/portfolio_entities.dart';
 
+/// Single-line text (titles, names, dates...): trims and collapses any run of
+/// whitespace, including stray line breaks, into one space.
+String _line(dynamic value) =>
+    (value ?? '').toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+
+/// Multi-line text (descriptions, bio...): a single line break in the middle
+/// of a sentence becomes a space, while blank lines are kept as paragraph
+/// breaks.
+String _paragraphs(dynamic value) => (value ?? '')
+    .toString()
+    .split(RegExp(r'\n\s*\n'))
+    .map(_line)
+    .where((p) => p.isNotEmpty)
+    .join('\n\n');
+
+List<String> _lines(dynamic value) => value is List
+    ? value.map(_line).where((s) => s.isNotEmpty).toList()
+    : <String>[];
+
 class ProfileModel extends ProfileEntity {
   const ProfileModel({
     required super.name,
@@ -18,17 +37,17 @@ class ProfileModel extends ProfileEntity {
 
   factory ProfileModel.fromFirestore(Map<String, dynamic> map) {
     return ProfileModel(
-      name: map['name'] ?? '',
-      title: map['title'] ?? '',
-      subtitle: map['subtitle'] ?? '',
-      bio: map['bio'] ?? '',
+      name: _line(map['name']),
+      title: _line(map['title']),
+      subtitle: _paragraphs(map['subtitle']),
+      bio: _paragraphs(map['bio']),
       photoUrl: map['photoUrl'] ?? '',
       email: map['email'] ?? '',
       phone: map['phone'] ?? '',
       github: map['github'] ?? '',
       linkedin: map['linkedin'] ?? '',
       cvUrl: map['cvUrl'] ?? '',
-      badges: List<String>.from(map['badges'] ?? []),
+      badges: _lines(map['badges']),
     );
   }
 
@@ -58,7 +77,7 @@ class SkillModel extends SkillEntity {
   factory SkillModel.fromFirestore(Map<String, dynamic> map, String id) {
     return SkillModel(
       id: id,
-      name: map['name'] ?? '',
+      name: _line(map['name']),
       iconUrl: map['iconUrl'],
       svgContent: map['svgContent'],
     );
@@ -94,10 +113,10 @@ class ProjectModel extends ProjectEntity {
 
     return ProjectModel(
       id: id,
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
+      title: _line(map['title']),
+      description: _paragraphs(map['description']),
       imageUrls: urls,
-      tags: List<String>.from(map['tags'] ?? []),
+      tags: _lines(map['tags']),
       githubUrl: map['githubUrl'],
       playStoreUrl: map['playStoreUrl'],
       createdAt: map['createdAt'] != null
@@ -131,9 +150,9 @@ class CertificateModel extends CertificateEntity {
   factory CertificateModel.fromFirestore(Map<String, dynamic> map, String id) {
     return CertificateModel(
       id: id,
-      title: map['title'] ?? '',
-      issuer: map['issuer'] ?? '',
-      date: map['date'] ?? '',
+      title: _line(map['title']),
+      issuer: _line(map['issuer']),
+      date: _line(map['date']),
       credentialUrl: map['credentialUrl'],
     );
   }
@@ -164,10 +183,10 @@ class CustomerOpinionModel extends CustomerOpinionEntity {
 
     return CustomerOpinionModel(
       id: id,
-      customerName: map['customerName'] ?? '',
-      customerRole: map['customerRole'] ?? '',
-      company: map['company'] ?? '',
-      comment: map['comment'] ?? '',
+      customerName: _line(map['customerName']),
+      customerRole: _line(map['customerRole']),
+      company: _line(map['company']),
+      comment: _paragraphs(map['comment']),
       rating: rawRating is int
           ? rawRating.clamp(1, 5)
           : int.tryParse(rawRating?.toString() ?? '')?.clamp(1, 5) ?? 5,
@@ -196,11 +215,11 @@ class ExperienceModel extends ExperienceEntity {
   factory ExperienceModel.fromFirestore(Map<String, dynamic> map, String id) {
     return ExperienceModel(
       id: id,
-      company: map['company'] ?? '',
-      role: map['role'] ?? '',
-      startDate: map['startDate'] ?? '',
-      endDate: map['endDate'] ?? '',
-      description: map['description'] ?? '',
+      company: _line(map['company']),
+      role: _line(map['role']),
+      startDate: _line(map['startDate']),
+      endDate: _line(map['endDate']),
+      description: _paragraphs(map['description']),
     );
   }
 

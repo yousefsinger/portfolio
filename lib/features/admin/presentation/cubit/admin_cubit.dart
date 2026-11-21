@@ -43,6 +43,7 @@ class AdminCubit extends Cubit<AdminState> {
   final AddExperienceUseCase _addExperience;
   final UpdateExperienceUseCase _updateExperience;
   final DeleteExperienceUseCase _deleteExperience;
+  final ReorderProjectsUseCase _reorderProjects;
 
   AdminCubit(
     this._updateProfile,
@@ -58,7 +59,17 @@ class AdminCubit extends Cubit<AdminState> {
     this._addExperience,
     this._updateExperience,
     this._deleteExperience,
+    this._reorderProjects,
   ) : super(AdminInitial());
+
+  Future<void> reorderProjects(List<String> idsInOrder) async {
+    try {
+      await _reorderProjects(idsInOrder);
+      emit(AdminSuccess('Project order saved.'));
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
 
   Future<void> updateProfile(ProfileEntity profile) async {
     emit(AdminLoading());

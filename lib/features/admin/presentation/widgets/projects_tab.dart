@@ -7,21 +7,60 @@ import '../../../portfolio/domain/entities/portfolio_entities.dart';
 import '../cubit/admin_cubit.dart';
 import 'admin_helpers.dart';
 
-class ProjectsTab extends StatelessWidget {
+class ProjectsTab extends StatefulWidget {
   final List<ProjectEntity> projects;
   const ProjectsTab({super.key, required this.projects});
 
   @override
+  State<ProjectsTab> createState() => _ProjectsTabState();
+}
+
+class _ProjectsTabState extends State<ProjectsTab> {
+  /// Local copy so a drag shows its result immediately, before Firestore
+  /// sends the updated list back.
+  late List<ProjectEntity> _items;
+
+  @override
+  void initState() {
+    super.initState();
+    _items = List.of(widget.projects);
+  }
+
+  @override
+  void didUpdateWidget(covariant ProjectsTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.projects != widget.projects) {
+      _items = List.of(widget.projects);
+    }
+  }
+
+  void _move(int from, int to) {
+    if (from == to || to < 0 || to >= _items.length) return;
+    setState(() => _items.insert(to, _items.removeAt(from)));
+    context.read<AdminCubit>().reorderProjects([for (final p in _items) p.id]);
+  }
+
+  /// New projects go to the top. If the list was never reordered, leave the
+  /// order empty: projects without one are already sorted newest first.
+  int? _newProjectOrder() {
+    final orders = _items.map((p) => p.order).whereType<int>();
+    if (orders.isEmpty) return null;
+    return orders.reduce((a, b) => a < b ? a : b) - 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 700;
+
     return Padding(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(compact ? 16 : 40),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
-                child: Text('Projects (${projects.length})',
+                child: Text('Projects (${_items.length})',
                     style: Theme.of(context).textTheme.headlineMedium),
               ),
               Expanded(
@@ -33,70 +72,160 @@ class ProjectsTab extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.info_outline_rounded,
+                  size: 16, color: AppColors.cyan),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Drag the handle or use the arrows to set the order. '
+                  '#1 shows first on the portfolio.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           Expanded(
-            child: ListView.separated(
-              itemCount: projects.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+            child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
+              itemCount: _items.length,
+              onReorderItem: _move,
               itemBuilder: (context, index) {
-                final p = projects[index];
-                return GradientBorderCard(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: AppColors.purple.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                          image: p.imageUrls.isNotEmpty
-                              ? DecorationImage(
-                                  image:
-                                      NetworkImage(convertDriveUrl(p.imageUrls.first)),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
+                final p = _items[index];
+                return Padding(
+                  key: ValueKey(p.id),
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: GradientBorderCard(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: compact ? 10 : 20, vertical: 16),
+                    child: Row(
+                      children: [
+                        ReorderableDragStartListener(
+                          index: index,
+                          child: const MouseRegion(
+                            cursor: SystemMouseCursors.grab,
+                            child: Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Icon(Icons.drag_indicator_rounded,
+                                  color: AppColors.textSecondaryDark),
+                            ),
+                          ),
                         ),
-                        child: p.imageUrls.isEmpty
-                            ? const Icon(Icons.image_outlined,
-                                color: AppColors.purple)
-                            : null,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(p.title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            Text(p.description,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis),
-                          ],
+                        const SizedBox(width: 6),
+                        Container(
+                          width: 34,
+                          height: 34,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: index == 0
+                                ? AppColors.purple
+                                : AppColors.purple.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '#${index + 1}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  index == 0 ? Colors.white : AppColors.purple,
+                            ),
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: AppColors.cyan,
+                        const SizedBox(width: 12),
+                        if (!compact) ...[
+                          Container(
+                            width: 80,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: AppColors.purple.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
+                              image: p.imageUrls.isNotEmpty
+                                  ? DecorationImage(
+                                      image: NetworkImage(
+                                          convertDriveUrl(p.imageUrls.first)),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: p.imageUrls.isEmpty
+                                ? const Icon(Icons.image_outlined,
+                                    color: AppColors.purple)
+                                : null,
+                          ),
+                          const SizedBox(width: 16),
+                        ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(p.title.isEmpty ? '(no title)' : p.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Text(p.description,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
                         ),
-                        onPressed: () =>
-                            _showProjectDialog(context, project: p),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded,
-                            color: Colors.red),
-                        onPressed: () => confirmDelete(
-                          context,
-                          'Delete "${p.title}"?',
-                          () => context.read<AdminCubit>().deleteProject(p.id),
+                        // Position controls (also usable without dragging).
+                        if (!compact)
+                          IconButton(
+                            tooltip: 'Move to top',
+                            icon: const Icon(Icons.vertical_align_top_rounded),
+                            color: AppColors.purple,
+                            onPressed:
+                                index == 0 ? null : () => _move(index, 0),
+                          ),
+                        IconButton(
+                          tooltip: 'Move up',
+                          visualDensity: VisualDensity.compact,
+                          icon:
+                              const Icon(Icons.arrow_upward_rounded, size: 20),
+                          color: AppColors.purple,
+                          onPressed:
+                              index == 0 ? null : () => _move(index, index - 1),
                         ),
-                      ),
-                    ],
+                        IconButton(
+                          tooltip: 'Move down',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.arrow_downward_rounded,
+                              size: 20),
+                          color: AppColors.purple,
+                          onPressed: index == _items.length - 1
+                              ? null
+                              : () => _move(index, index + 1),
+                        ),
+                        IconButton(
+                          tooltip: 'Edit',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            color: AppColors.cyan,
+                          ),
+                          onPressed: () =>
+                              _showProjectDialog(context, project: p),
+                        ),
+                        IconButton(
+                          tooltip: 'Delete',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.delete_outline_rounded,
+                              color: Colors.red),
+                          onPressed: () => confirmDelete(
+                            context,
+                            'Delete "${p.title}"?',
+                            () =>
+                                context.read<AdminCubit>().deleteProject(p.id),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -113,8 +242,8 @@ class ProjectsTab extends StatelessWidget {
     final titleCtrl = TextEditingController(text: existingProject?.title ?? '');
     final descCtrl =
         TextEditingController(text: existingProject?.description ?? '');
-    final imgUrlsCtrl =
-        TextEditingController(text: existingProject?.imageUrls.join(', ') ?? '');
+    final imgUrlsCtrl = TextEditingController(
+        text: existingProject?.imageUrls.join(', ') ?? '');
     final tagsCtrl =
         TextEditingController(text: existingProject?.tags.join(', ') ?? '');
     final githubCtrl =
@@ -186,7 +315,8 @@ class ProjectsTab extends StatelessWidget {
                             TextField(
                               controller: imgUrlsCtrl,
                               decoration: const InputDecoration(
-                                  hintText: 'Project Image URLs (comma separated)'),
+                                  hintText:
+                                      'Project Image URLs (comma separated)'),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
@@ -235,6 +365,9 @@ class ProjectsTab extends StatelessWidget {
                                 ? null
                                 : playStoreCtrl.text.trim(),
                             createdAt: existingProject?.createdAt,
+                            order: isEditing
+                                ? existingProject.order
+                                : _newProjectOrder(),
                           );
                           if (isEditing) {
                             adminCubit.updateProject(updatedProject);
@@ -250,5 +383,5 @@ class ProjectsTab extends StatelessWidget {
                 },
               ),
             ));
-}
+  }
 }

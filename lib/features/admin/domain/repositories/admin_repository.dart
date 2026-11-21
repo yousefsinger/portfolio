@@ -7,6 +7,9 @@ abstract class AdminRepository {
   Future<void> addProject(ProjectEntity project);
   Future<void> updateProject(ProjectEntity project);
   Future<void> deleteProject(String id);
+
+  /// Saves the display order: the first id shows first on the portfolio.
+  Future<void> reorderProjects(List<String> idsInOrder);
   Future<void> addCertificate(CertificateEntity certificate);
   Future<void> updateCertificate(CertificateEntity certificate);
   Future<void> deleteCertificate(String id);

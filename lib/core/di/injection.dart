@@ -101,9 +101,13 @@ Future<void> setupDI() async {
   sl.registerLazySingleton<DeleteExperienceUseCase>(
     () => DeleteExperienceUseCase(sl()),
   );
+  sl.registerLazySingleton<ReorderProjectsUseCase>(
+    () => ReorderProjectsUseCase(sl()),
+  );
   sl.registerFactory<AdminCubit>(
     () => AdminCubit(
       sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(),
+      sl(),
     ),
   );
 }

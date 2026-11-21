@@ -74,8 +74,18 @@ class AdminRepositoryImpl implements AdminRepository {
         githubUrl: project.githubUrl,
         playStoreUrl: project.playStoreUrl,
         createdAt: DateTime.now(), // Set current time for new projects
+        order: project.order,
       ).toFirestore(),
     );
+  }
+
+  @override
+  Future<void> reorderProjects(List<String> idsInOrder) async {
+    final batch = _firestore.batch();
+    for (var i = 0; i < idsInOrder.length; i++) {
+      batch.update(_projectsCol.doc(idsInOrder[i]), {'order': i});
+    }
+    await batch.commit();
   }
 
   @override
@@ -90,6 +100,7 @@ class AdminRepositoryImpl implements AdminRepository {
             githubUrl: project.githubUrl,
             playStoreUrl: project.playStoreUrl,
             createdAt: project.createdAt, // Keep existing timestamp
+            order: project.order, // Keep existing position
           ).toFirestore(),
         );
   }

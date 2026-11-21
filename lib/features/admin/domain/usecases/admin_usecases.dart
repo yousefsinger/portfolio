@@ -37,6 +37,13 @@ class DeleteProjectUseCase {
   Future<void> call(String id) => _repo.deleteProject(id);
 }
 
+class ReorderProjectsUseCase {
+  final AdminRepository _repo;
+  ReorderProjectsUseCase(this._repo);
+  Future<void> call(List<String> idsInOrder) =>
+      _repo.reorderProjects(idsInOrder);
+}
+
 class AddCertificateUseCase {
   final AdminRepository _repo;
   AddCertificateUseCase(this._repo);

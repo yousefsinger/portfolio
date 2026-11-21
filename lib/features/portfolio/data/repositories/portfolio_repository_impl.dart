@@ -4,6 +4,20 @@ import '../../domain/entities/portfolio_entities.dart';
 import '../../domain/repositories/portfolio_repository.dart';
 import '../models/portfolio_models.dart';
 
+/// Projects with a chosen position (`order`) come first, lowest first.
+/// The rest follow, newest first by `createdAt`.
+int compareProjects(ProjectEntity a, ProjectEntity b) {
+  final ao = a.order, bo = b.order;
+  if (ao != null && bo != null) return ao.compareTo(bo);
+  if (ao != null) return -1;
+  if (bo != null) return 1;
+
+  if (a.createdAt == null && b.createdAt == null) return 0;
+  if (a.createdAt == null) return 1;
+  if (b.createdAt == null) return -1;
+  return b.createdAt!.compareTo(a.createdAt!);
+}
+
 class PortfolioRepositoryImpl implements PortfolioRepository {
   final FirebaseFirestore _firestore;
 
@@ -72,13 +86,7 @@ class PortfolioRepositoryImpl implements PortfolioRepository {
       );
     }).toList();
 
-    // Sort projects by createdAt descending (latest first)
-    projects.sort((a, b) {
-      if (a.createdAt == null && b.createdAt == null) return 0;
-      if (a.createdAt == null) return 1;
-      if (b.createdAt == null) return -1;
-      return b.createdAt!.compareTo(a.createdAt!);
-    });
+    projects.sort(compareProjects);
 
     final certificates = certsDocs.docs.map((doc) {
       return CertificateModel.fromFirestore(

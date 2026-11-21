@@ -70,6 +70,10 @@ class ProjectEntity extends Equatable {
   final String? playStoreUrl;
   final DateTime? createdAt;
 
+  /// Display position chosen in the admin dashboard (lower shows first).
+  /// Null for projects that were never reordered.
+  final int? order;
+
   const ProjectEntity({
     required this.id,
     required this.title,
@@ -79,11 +83,21 @@ class ProjectEntity extends Equatable {
     this.githubUrl,
     this.playStoreUrl,
     this.createdAt,
+    this.order,
   });
 
   @override
-  List<Object?> get props =>
-      [id, title, description, imageUrls, tags, githubUrl, playStoreUrl, createdAt];
+  List<Object?> get props => [
+        id,
+        title,
+        description,
+        imageUrls,
+        tags,
+        githubUrl,
+        playStoreUrl,
+        createdAt,
+        order,
+      ];
 }
 
 class CertificateEntity extends Equatable {

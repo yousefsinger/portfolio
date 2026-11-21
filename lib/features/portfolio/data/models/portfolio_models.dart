@@ -100,6 +100,7 @@ class ProjectModel extends ProjectEntity {
     super.githubUrl,
     super.playStoreUrl,
     super.createdAt,
+    super.order,
   });
 
   factory ProjectModel.fromFirestore(Map<String, dynamic> map, String id) {
@@ -122,6 +123,7 @@ class ProjectModel extends ProjectEntity {
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] as Timestamp).toDate()
           : null,
+      order: (map['order'] as num?)?.toInt(),
     );
   }
 
@@ -135,6 +137,8 @@ class ProjectModel extends ProjectEntity {
         'createdAt': createdAt != null
             ? Timestamp.fromDate(createdAt!)
             : FieldValue.serverTimestamp(),
+        // Only written when set, so updates never wipe an existing order.
+        if (order != null) 'order': order,
       };
 }
 

@@ -22,11 +22,41 @@ class ImageUploadService {
     );
     final file = result?.files.single;
     if (file == null) return null;
+    return _upload(file);
+  }
 
+  /// Lets the user pick several images and uploads them one after another.
+  ///
+  /// [onUploaded] is called with each URL as soon as that image is done, so
+  /// finished uploads are kept even if a later one fails. [onProgress]
+  /// reports (done, total). Returns the number of images picked (0 if the
+  /// user cancelled). Throws on the first failed upload.
+  Future<int> pickAndUploadMany({
+    required void Function(String url) onUploaded,
+    void Function(int done, int total)? onProgress,
+  }) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: true,
+      withData: true,
+    );
+    final files = result?.files ?? const <PlatformFile>[];
+    for (var i = 0; i < files.length; i++) {
+      onProgress?.call(i, files.length);
+      onUploaded(await _upload(files[i]));
+    }
+    onProgress?.call(files.length, files.length);
+    return files.length;
+  }
+
+  Future<String> _upload(PlatformFile file) async {
     final bytes = file.bytes;
-    if (bytes == null) throw Exception('Could not read the selected image.');
+    if (bytes == null) {
+      throw Exception('Could not read "${file.name}".');
+    }
     if (bytes.length > maxBytes) {
-      throw Exception('Image is larger than 10 MB. Please choose a smaller one.');
+      throw Exception('"${file.name}" is larger than 10 MB. '
+          'Please choose a smaller image.');
     }
 
     final request = http.MultipartRequest(

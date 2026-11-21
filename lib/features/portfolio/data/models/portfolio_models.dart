@@ -16,6 +16,12 @@ String _paragraphs(dynamic value) => (value ?? '')
     .where((p) => p.isNotEmpty)
     .join('\n\n');
 
+/// Optional link: blank values become null so no empty button is shown.
+String? _optionalUrl(dynamic value) {
+  final s = _line(value);
+  return s.isEmpty ? null : s;
+}
+
 List<String> _lines(dynamic value) => value is List
     ? value.map(_line).where((s) => s.isNotEmpty).toList()
     : <String>[];
@@ -99,6 +105,7 @@ class ProjectModel extends ProjectEntity {
     required super.tags,
     super.githubUrl,
     super.playStoreUrl,
+    super.appStoreUrl,
     super.createdAt,
     super.order,
   });
@@ -118,8 +125,9 @@ class ProjectModel extends ProjectEntity {
       description: _paragraphs(map['description']),
       imageUrls: urls,
       tags: _lines(map['tags']),
-      githubUrl: map['githubUrl'],
-      playStoreUrl: map['playStoreUrl'],
+      githubUrl: _optionalUrl(map['githubUrl']),
+      playStoreUrl: _optionalUrl(map['playStoreUrl']),
+      appStoreUrl: _optionalUrl(map['appStoreUrl']),
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] as Timestamp).toDate()
           : null,
@@ -134,6 +142,7 @@ class ProjectModel extends ProjectEntity {
         'tags': tags,
         'githubUrl': githubUrl,
         'playStoreUrl': playStoreUrl,
+        'appStoreUrl': appStoreUrl,
         'createdAt': createdAt != null
             ? Timestamp.fromDate(createdAt!)
             : FieldValue.serverTimestamp(),

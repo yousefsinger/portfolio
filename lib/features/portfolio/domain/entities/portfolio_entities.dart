@@ -68,6 +68,7 @@ class ProjectEntity extends Equatable {
   final List<String> tags;
   final String? githubUrl;
   final String? playStoreUrl;
+  final String? appStoreUrl;
   final DateTime? createdAt;
 
   /// Display position chosen in the admin dashboard (lower shows first).
@@ -82,6 +83,7 @@ class ProjectEntity extends Equatable {
     required this.tags,
     this.githubUrl,
     this.playStoreUrl,
+    this.appStoreUrl,
     this.createdAt,
     this.order,
   });
@@ -95,6 +97,7 @@ class ProjectEntity extends Equatable {
         tags,
         githubUrl,
         playStoreUrl,
+        appStoreUrl,
         createdAt,
         order,
       ];

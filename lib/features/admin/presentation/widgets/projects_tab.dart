@@ -250,6 +250,8 @@ class _ProjectsTabState extends State<ProjectsTab> {
         TextEditingController(text: existingProject?.githubUrl ?? '');
     final playStoreCtrl =
         TextEditingController(text: existingProject?.playStoreUrl ?? '');
+    final appStoreCtrl =
+        TextEditingController(text: existingProject?.appStoreUrl ?? '');
 
     final adminCubit = context.read<AdminCubit>();
 
@@ -342,7 +344,10 @@ class _ProjectsTabState extends State<ProjectsTab> {
                             dialogField('GitHub URL (optional)', githubCtrl),
                             const SizedBox(height: 12),
                             dialogField(
-                                'Play Store URL (optional)', playStoreCtrl),
+                                'Google Play URL (optional)', playStoreCtrl),
+                            const SizedBox(height: 12),
+                            dialogField(
+                                'App Store URL (optional)', appStoreCtrl),
                           ],
                         ),
                       ),
@@ -377,6 +382,9 @@ class _ProjectsTabState extends State<ProjectsTab> {
                             playStoreUrl: playStoreCtrl.text.trim().isEmpty
                                 ? null
                                 : playStoreCtrl.text.trim(),
+                            appStoreUrl: appStoreCtrl.text.trim().isEmpty
+                                ? null
+                                : appStoreCtrl.text.trim(),
                             createdAt: existingProject?.createdAt,
                             order: isEditing
                                 ? existingProject.order

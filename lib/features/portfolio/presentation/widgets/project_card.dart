@@ -138,21 +138,22 @@ class _ProjectCardState extends State<ProjectCard> {
                     );
                   }).toList(),
                 ),
-                if ((project.githubUrl?.trim().isNotEmpty ?? false)) ...[
+                if (_links.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  TextButton.icon(
-                    onPressed: () async {
-                      final uri = Uri.parse(project.githubUrl!.trim());
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri,
-                            mode: LaunchMode.externalApplication);
-                      }
-                    },
-                    icon: const Icon(Icons.code_rounded, size: 16),
-                    label: const Text('View Code'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.purple,
-                    ),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      for (final link in _links)
+                        TextButton.icon(
+                          onPressed: () => _open(link.url),
+                          icon: Icon(link.icon, size: 16),
+                          label: Text(link.label),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.purple,
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ],
@@ -164,6 +165,26 @@ class _ProjectCardState extends State<ProjectCard> {
         .animate(delay: Duration(milliseconds: widget.delay))
         .fadeIn(duration: 600.ms)
         .slideY(begin: 0.3, end: 0);
+  }
+
+  /// Only the links the project actually has (all of them are optional).
+  List<({String label, IconData icon, String url})> get _links {
+    final p = widget.project;
+    return [
+      if (p.githubUrl?.isNotEmpty ?? false)
+        (label: 'View Code', icon: Icons.code_rounded, url: p.githubUrl!),
+      if (p.playStoreUrl?.isNotEmpty ?? false)
+        (label: 'Google Play', icon: Icons.shop_rounded, url: p.playStoreUrl!),
+      if (p.appStoreUrl?.isNotEmpty ?? false)
+        (label: 'App Store', icon: Icons.apple, url: p.appStoreUrl!),
+    ];
+  }
+
+  Future<void> _open(String url) async {
+    final uri = Uri.tryParse(url.trim());
+    if (uri != null) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   Widget _imagePlaceholder() {

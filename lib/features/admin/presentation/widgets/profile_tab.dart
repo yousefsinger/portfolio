@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/utils/drive_url_helper.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../../portfolio/domain/entities/portfolio_entities.dart';
 import '../cubit/admin_cubit.dart';
-import 'admin_helpers.dart';
 
 class ProfileTab extends StatefulWidget {
   final ProfileEntity profile;
@@ -25,7 +23,6 @@ class _ProfileTabState extends State<ProfileTab> {
   late TextEditingController _githubCtrl;
   late TextEditingController _linkedinCtrl;
   late TextEditingController _cvUrlCtrl;
-  late TextEditingController _photoUrlCtrl;
 
   @override
   void initState() {
@@ -39,19 +36,10 @@ class _ProfileTabState extends State<ProfileTab> {
     _githubCtrl = TextEditingController(text: widget.profile.github);
     _linkedinCtrl = TextEditingController(text: widget.profile.linkedin);
     _cvUrlCtrl = TextEditingController(text: widget.profile.cvUrl);
-    _photoUrlCtrl = TextEditingController(text: widget.profile.photoUrl);
-
-    // Add listener for real-time preview update
-    _photoUrlCtrl.addListener(_onPhotoUrlChanged);
-  }
-
-  void _onPhotoUrlChanged() {
-    setState(() {}); // Rebuild to update preview
   }
 
   @override
   void dispose() {
-    _photoUrlCtrl.removeListener(_onPhotoUrlChanged);
     _nameCtrl.dispose();
     _titleCtrl.dispose();
     _subtitleCtrl.dispose();
@@ -61,7 +49,6 @@ class _ProfileTabState extends State<ProfileTab> {
     _githubCtrl.dispose();
     _linkedinCtrl.dispose();
     _cvUrlCtrl.dispose();
-    _photoUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -71,7 +58,8 @@ class _ProfileTabState extends State<ProfileTab> {
       title: _titleCtrl.text,
       subtitle: _subtitleCtrl.text,
       bio: _bioCtrl.text,
-      photoUrl: _photoUrlCtrl.text,
+      // Not edited here any more; keep whatever is stored.
+      photoUrl: widget.profile.photoUrl,
       email: _emailCtrl.text,
       phone: _phoneCtrl.text,
       github: _githubCtrl.text,
@@ -97,7 +85,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 Text('Edit Profile',
                     style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 32),
-                // Photo URL preview
+                // The photo is bundled with the app (assets/Youssef.jpg).
                 Center(
                   child: Column(
                     children: [
@@ -109,27 +97,17 @@ class _ProfileTabState extends State<ProfileTab> {
                           border: Border.all(color: AppColors.purple, width: 2),
                         ),
                         child: ClipOval(
-                          child: _photoUrlCtrl.text.isNotEmpty
-                              ? Image.network(
-                                  convertDriveUrl(_photoUrlCtrl.text),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(
-                                      Icons.broken_image_rounded,
-                                      size: 60,
-                                      color: AppColors.purple))
-                              : const Icon(Icons.person_rounded,
-                                  size: 60, color: AppColors.purple),
+                          child: Image.asset(
+                            'assets/Youssef.jpg',
+                            fit: BoxFit.cover,
+                            alignment: const Alignment(0, -0.3),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      ImageUploadButton(
-                        label: 'Upload photo',
-                        onUploaded: (url) => _photoUrlCtrl.text = url,
-                      ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       const Text(
-                        'Upload a photo, or paste a URL below. '
-                        'Then press Save Changes.',
+                        'To change the photo, replace assets/Youssef.jpg '
+                        'in the project and deploy.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.cyan,
@@ -140,8 +118,6 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _buildField('Photo URL', _photoUrlCtrl),
-                const SizedBox(height: 16),
                 _buildField('Name', _nameCtrl),
                 const SizedBox(height: 16),
                 _buildField('Title', _titleCtrl),

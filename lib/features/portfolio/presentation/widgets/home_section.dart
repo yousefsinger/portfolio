@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../core/utils/net_image.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/utils/drive_url_helper.dart';
 import 'social_icon.dart';
 
 class HomeSection extends StatelessWidget {
   final String name;
   final String title;
   final String subtitle;
-  final String photoUrl;
   final String githubUrl;
   final String linkedinUrl;
   final String email;
@@ -22,7 +19,6 @@ class HomeSection extends StatelessWidget {
     required this.name,
     required this.title,
     required this.subtitle,
-    required this.photoUrl,
     required this.githubUrl,
     required this.linkedinUrl,
     required this.email,
@@ -193,7 +189,7 @@ class HomeSection extends StatelessWidget {
         ],
       ),
       child: ClipOval(
-        child: _ProfilePhoto(photoUrl: photoUrl),
+        child: const _ProfilePhoto(),
       ),
     )
         // Part 1: Intro (Fade & Scale) - Happens only once
@@ -211,92 +207,27 @@ class HomeSection extends StatelessWidget {
   }
 }
 
-class _ProfilePhoto extends StatefulWidget {
-  final String photoUrl;
+/// The profile photo, bundled with the app in assets/Youssef.jpg.
+class _ProfilePhoto extends StatelessWidget {
+  static const asset = 'assets/Youssef.jpg';
 
-  const _ProfilePhoto({required this.photoUrl});
-
-  @override
-  State<_ProfilePhoto> createState() => _ProfilePhotoState();
-}
-
-class _ProfilePhotoState extends State<_ProfilePhoto> {
-  late List<String> _candidateUrls;
-  int _currentIndex = 0;
-  bool _scheduledRetry = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _resetCandidates();
-  }
-
-  @override
-  void didUpdateWidget(covariant _ProfilePhoto oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.photoUrl != widget.photoUrl) {
-      _resetCandidates();
-    }
-  }
-
-  void _resetCandidates() {
-    _candidateUrls = buildDriveImageCandidates(widget.photoUrl);
-    _currentIndex = 0;
-    _scheduledRetry = false;
-  }
-
-  void _tryNextCandidate() {
-    if (_scheduledRetry || _currentIndex >= _candidateUrls.length - 1) return;
-
-    _scheduledRetry = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      setState(() {
-        _currentIndex++;
-        _scheduledRetry = false;
-      });
-    });
-  }
+  const _ProfilePhoto();
 
   @override
   Widget build(BuildContext context) {
-    if (_candidateUrls.isEmpty) {
-      return _buildPlaceholderPhoto();
-    }
-
-    final imageUrl = _candidateUrls[_currentIndex];
-
-    return NetImage(
-      url: imageUrl,
+    return Image.asset(
+      asset,
       fit: BoxFit.cover,
-      loading: (context) => const Center(
-        child: CircularProgressIndicator(
+      // The face sits slightly above the middle of the portrait photo.
+      alignment: const Alignment(0, -0.3),
+      errorBuilder: (_, __, ___) => Container(
+        color: AppColors.darkCard,
+        child: const Icon(
+          Icons.person_rounded,
+          size: 100,
           color: AppColors.purple,
-          strokeWidth: 2,
         ),
       ),
-      error: (context) {
-        _tryNextCandidate();
-        return _currentIndex < _candidateUrls.length - 1
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.purple,
-                  strokeWidth: 2,
-                ),
-              )
-            : _buildPlaceholderPhoto();
-      },
     );
   }
-}
-
-Widget _buildPlaceholderPhoto() {
-  return Container(
-    color: AppColors.darkCard,
-    child: const Icon(
-      Icons.person_rounded,
-      size: 100,
-      color: AppColors.purple,
-    ),
-  );
 }

@@ -73,6 +73,7 @@ class AdminRepositoryImpl implements AdminRepository {
         tags: project.tags,
         githubUrl: project.githubUrl,
         playStoreUrl: project.playStoreUrl,
+        appStoreUrl: project.appStoreUrl,
         createdAt: DateTime.now(), // Set current time for new projects
         order: project.order,
       ).toFirestore(),
@@ -99,6 +100,7 @@ class AdminRepositoryImpl implements AdminRepository {
             tags: project.tags,
             githubUrl: project.githubUrl,
             playStoreUrl: project.playStoreUrl,
+            appStoreUrl: project.appStoreUrl,
             createdAt: project.createdAt, // Keep existing timestamp
             order: project.order, // Keep existing position
           ).toFirestore(),

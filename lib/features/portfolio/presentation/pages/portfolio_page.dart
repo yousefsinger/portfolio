@@ -106,7 +106,6 @@ class _PortfolioViewState extends State<_PortfolioView> {
           name: p.name,
           title: p.title,
           subtitle: p.subtitle,
-          photoUrl: p.photoUrl,
           githubUrl: p.github,
           linkedinUrl: p.linkedin,
           email: p.email,

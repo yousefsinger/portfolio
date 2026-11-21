@@ -36,6 +36,7 @@ class AppStrings {
 
   // Nav
   static const String home = 'Home';
+  static const String experience = 'Experience';
   static const String about = 'About';
   static const String skills = 'Skills';
   static const String projects = 'Projects';

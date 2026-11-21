@@ -9,7 +9,9 @@ class SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.headlineLarge,
+      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+            fontSize: MediaQuery.sizeOf(context).width < 700 ? 26 : null,
+          ),
       textAlign: TextAlign.center,
     )
         .animate()

@@ -24,13 +24,19 @@ class CvViewerDialog extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final previewUrl = buildDrivePreviewUrl(cvUrl);
 
+    final screen = MediaQuery.sizeOf(context);
+    final mobile = screen.width < 700;
+
     return Dialog(
+      insetPadding: mobile
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 24)
+          : const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.cardRadius),
       ),
       child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.8,
+        width: mobile ? screen.width : screen.width * 0.8,
         height: MediaQuery.of(context).size.height * 0.85,
         child: Column(
           children: [

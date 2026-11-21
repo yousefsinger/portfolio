@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../../../core/utils/section_title.dart';
+import '../../../../core/utils/snap_carousel.dart';
 import '../cubit/pagination_cubit.dart';
 import '../../domain/entities/portfolio_entities.dart';
 import 'section_pagination_controls.dart';
@@ -47,14 +48,14 @@ class _CertificatesSectionState extends State<CertificatesSection> {
     return BlocProvider.value(
       value: _paginationCubit,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 60,
-          vertical: AppSizes.sectionPadding,
+        padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+          vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
         ),
         child: Column(
           children: [
             const SectionTitle(title: AppStrings.certificates),
-            const SizedBox(height: 48),
+            SizedBox(height: MediaQuery.sizeOf(context).width < 700 ? 28 : 48),
             LayoutBuilder(builder: (context, constraints) {
               final crossAxisCount = constraints.maxWidth > 1000
                   ? 4
@@ -67,6 +68,13 @@ class _CertificatesSectionState extends State<CertificatesSection> {
               return BlocBuilder<PaginationCubit<CertificateEntity>,
                   PaginationState<CertificateEntity>>(
                 builder: (context, state) {
+                  if (SnapCarousel.useOn(context)) {
+                    return SnapCarousel(
+                      children: [
+                        for (final item in state.items) _CertificateCard(certificate: item, delay: 0),
+                      ],
+                    );
+                  }
                   return Column(
                     children: [
                       Wrap(
@@ -155,11 +163,13 @@ class _CertificateCard extends StatelessWidget {
               const Icon(Icons.business_outlined,
                   size: 14, color: AppColors.cyan),
               const SizedBox(width: 6),
-              Text(
-                certificate.issuer,
-                style: const TextStyle(
-                  color: AppColors.cyan,
-                  fontSize: 13,
+              Flexible(
+                child: Text(
+                  certificate.issuer,
+                  style: const TextStyle(
+                    color: AppColors.cyan,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],
@@ -170,11 +180,13 @@ class _CertificateCard extends StatelessWidget {
               const Icon(Icons.calendar_today_outlined,
                   size: 14, color: AppColors.textSecondaryDark),
               const SizedBox(width: 6),
-              Text(
-                certificate.date,
-                style: const TextStyle(
-                  color: AppColors.textSecondaryDark,
-                  fontSize: 13,
+              Flexible(
+                child: Text(
+                  certificate.date,
+                  style: const TextStyle(
+                    color: AppColors.textSecondaryDark,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],

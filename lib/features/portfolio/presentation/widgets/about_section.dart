@@ -17,18 +17,20 @@ class AboutSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 60,
-        vertical: AppSizes.sectionPadding,
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+        vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
       ),
       child: Column(
         children: [
           const SectionTitle(title: AppStrings.aboutTitle),
-          const SizedBox(height: 48),
+          SizedBox(height: MediaQuery.sizeOf(context).width < 700 ? 28 : 48),
           SizedBox(
             width: 700,
             child: GradientBorderCard(
-              padding: const EdgeInsets.all(40),
+              padding: EdgeInsets.all(
+                MediaQuery.sizeOf(context).width < 700 ? 22 : 40,
+              ),
               child: Column(
                 children: [
                   Text(

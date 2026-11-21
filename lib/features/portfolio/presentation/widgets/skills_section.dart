@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/section_title.dart';
+import '../../../../core/utils/snap_carousel.dart';
 import '../../domain/entities/portfolio_entities.dart';
 
 class SkillsSection extends StatelessWidget {
@@ -16,25 +17,68 @@ class SkillsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 60,
-        vertical: AppSizes.sectionPadding,
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+        vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
       ),
       child: Column(
         children: [
           const SectionTitle(title: AppStrings.skills),
-          const SizedBox(height: 48),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            alignment: WrapAlignment.center,
-            children: List.generate(skills.length, (index) {
-              return _SkillCard(
-                skill: skills[index],
-                delay: (index * 60).clamp(0, 600),
+          SizedBox(height: MediaQuery.sizeOf(context).width < 700 ? 28 : 48),
+          LayoutBuilder(builder: (context, constraints) {
+            if (SnapCarousel.useOn(context)) {
+              // Phones: two rows that scroll sideways.
+              const rows = 2;
+              // Three full cards visible plus a peek of the next column.
+              final cardW = ((MediaQuery.sizeOf(context).width - 30 - 12 * 3) /
+                      3.35)
+                  .clamp(96.0, 130.0);
+              return SnapCarousel(
+                itemWidth: cardW,
+                spacing: 12,
+                equalHeight: false,
+                showDots: false,
+                children: [
+                  for (int i = 0; i < skills.length; i += rows)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (int j = i; j < i + rows && j < skills.length; j++)
+                          Padding(
+                            padding: EdgeInsets.only(top: j == i ? 0 : 12),
+                            child: _SkillCard(skill: skills[j], delay: 0),
+                          ),
+                      ],
+                    ),
+                ],
               );
-            }),
-          ),
+            }
+
+            final crossAxisCount = constraints.maxWidth > 1000
+                ? 6
+                : constraints.maxWidth > 700
+                    ? 4
+                    : 2;
+            final spacing = 16.0;
+            final itemWidth =
+                (constraints.maxWidth - (crossAxisCount - 1) * spacing) /
+                    crossAxisCount;
+
+            return Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
+              alignment: WrapAlignment.center,
+              children: List.generate(skills.length, (index) {
+                return SizedBox(
+                  width: itemWidth.clamp(80, 160),
+                  child: _SkillCard(
+                    skill: skills[index],
+                    delay: (index * 60).clamp(0, 600),
+                  ),
+                );
+              }),
+            );
+          }),
         ],
       ),
     );
@@ -79,7 +123,7 @@ class _SkillCardState extends State<_SkillCard> {
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutCubic,
-            width: 120,
+            // width removed to let parent SizedBox control it
             height: 120,
             transform: hovered
                 ? (Matrix4.identity()..scale(1.05, 1.05))

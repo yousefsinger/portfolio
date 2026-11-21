@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../../../core/utils/section_title.dart';
+import '../../../../core/utils/snap_carousel.dart';
 import '../../domain/entities/portfolio_entities.dart';
 import '../cubit/pagination_cubit.dart';
 import '../cubit/portfolio_cubit.dart';
@@ -76,6 +77,11 @@ class _OpinionsSectionState extends State<OpinionsSection> {
         child: StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              insetPadding: EdgeInsets.symmetric(
+                horizontal:
+                    MediaQuery.sizeOf(context).width < 700 ? 16 : 40,
+                vertical: 24,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.cardRadius),
               ),
@@ -170,9 +176,9 @@ class _OpinionsSectionState extends State<OpinionsSection> {
     return BlocProvider.value(
       value: _paginationCubit,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 60,
-          vertical: AppSizes.sectionPadding,
+        padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+          vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
         ),
         child: Column(
           children: [
@@ -191,9 +197,16 @@ class _OpinionsSectionState extends State<OpinionsSection> {
                 PaginationState<CustomerOpinionEntity>>(
               builder: (context, state) {
                 if (state.items.isEmpty) {
-                  return const _EmptyOpinionsState()
-                      .animate()
-                      .fadeIn(duration: 400.ms);
+                  return const SizedBox.shrink();
+                }
+
+                if (SnapCarousel.useOn(context)) {
+                  return SnapCarousel(
+                    children: [
+                      for (final item in state.items)
+                        _OpinionCard(opinion: item, delay: 0),
+                    ],
+                  );
                 }
 
                 return LayoutBuilder(
@@ -275,6 +288,10 @@ class _OpinionCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             opinion.comment,
+            // Arabic (or other RTL) reviews read right-to-left.
+            textDirection: RegExp(r'[؀-ۿ]').hasMatch(opinion.comment)
+                ? TextDirection.rtl
+                : null,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.7),
           ),
           const SizedBox(height: 20),

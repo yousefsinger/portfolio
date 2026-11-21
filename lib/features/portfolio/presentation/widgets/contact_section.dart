@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/email_launcher.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../../../core/utils/section_title.dart';
 import 'contact_form.dart';
@@ -23,37 +24,30 @@ class ContactSection extends StatelessWidget {
     final hasPhone = phone.trim().isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 60,
-        vertical: AppSizes.sectionPadding,
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+        vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
       ),
       child: Column(
         children: [
           const SectionTitle(title: AppStrings.contactTitle),
-          const SizedBox(height: 48),
+          SizedBox(height: MediaQuery.sizeOf(context).width < 700 ? 28 : 48),
           SizedBox(
             width: 600,
             child: Column(
               children: [
                 if (hasEmail || hasPhone) ...[
                   GradientBorderCard(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 40,
+                      runSpacing: 14,
                       children: [
                         if (hasEmail)
                           ContactInfo(
                             svgPath: 'assets/icons/gmailicon.svg',
                             text: email,
-                            onTap: () async {
-                              final Uri emailLaunchUri = Uri(
-                                scheme: 'mailto',
-                                path: email.trim(),
-                              );
-                              if (await canLaunchUrl(emailLaunchUri)) {
-                                await launchUrl(emailLaunchUri,
-                                    mode: LaunchMode.externalApplication);
-                              }
-                            },
+                            onTap: () => launchEmail(email),
                           ),
                         if (hasEmail && hasPhone) const SizedBox(width: 40),
                         if (hasPhone)

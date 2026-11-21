@@ -31,9 +31,11 @@ class ContactInfo extends StatelessWidget {
                 )
               : Icon(icon, color: AppColors.cyan, size: 18),
           const SizedBox(width: 8),
-          Text(
-            text,
-            style: Theme.of(context).textTheme.bodyMedium,
+          Flexible(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
         ],
       ),

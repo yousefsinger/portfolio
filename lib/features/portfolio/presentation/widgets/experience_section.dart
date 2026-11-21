@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../../../core/utils/section_title.dart';
+import '../../../../core/utils/snap_carousel.dart';
 import '../cubit/pagination_cubit.dart';
 import '../../domain/entities/portfolio_entities.dart';
 import 'section_pagination_controls.dart';
@@ -45,14 +46,14 @@ class _ExperienceSectionState extends State<ExperienceSection> {
     return BlocProvider.value(
       value: _paginationCubit,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 60,
-          vertical: AppSizes.sectionPadding,
+        padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+          vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
         ),
         child: Column(
           children: [
             const SectionTitle(title: 'Practical Experience'),
-            const SizedBox(height: 48),
+            SizedBox(height: MediaQuery.sizeOf(context).width < 700 ? 28 : 48),
             LayoutBuilder(builder: (context, constraints) {
               final crossAxisCount = constraints.maxWidth > 1000
                   ? 3
@@ -63,6 +64,13 @@ class _ExperienceSectionState extends State<ExperienceSection> {
               
               return BlocBuilder<PaginationCubit<ExperienceEntity>, PaginationState<ExperienceEntity>>(
                 builder: (context, state) {
+                  if (SnapCarousel.useOn(context)) {
+                    return SnapCarousel(
+                      children: [
+                        for (final item in state.items) _ExperienceCard(experience: item, delay: 0),
+                      ],
+                    );
+                  }
                   return Column(
                     children: [
                       Wrap(
@@ -161,11 +169,13 @@ class _ExperienceCard extends StatelessWidget {
             children: [
               const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textSecondaryDark),
               const SizedBox(width: 8),
-              Text(
-                '${experience.startDate} — ${experience.endDate}',
-                style: const TextStyle(
-                  color: AppColors.textSecondaryDark,
-                  fontSize: 13,
+              Flexible(
+                child: Text(
+                  '${experience.startDate} — ${experience.endDate}',
+                  style: const TextStyle(
+                    color: AppColors.textSecondaryDark,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],

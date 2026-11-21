@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/utils/net_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/drive_url_helper.dart';
 import 'social_icon.dart';
@@ -38,10 +38,14 @@ class HomeSection extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(
-        minHeight: MediaQuery.of(context).size.height * 0.7,
+        // On phones the content sets the height; no forced empty space.
+        minHeight: isWide ? MediaQuery.of(context).size.height * 0.7 : 0,
       ),
+      padding: EdgeInsets.only(top: isWide ? 0 : 28, bottom: isWide ? 0 : 8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 60),
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+        ),
         child: isWide
             ? Row(
                 children: [
@@ -78,14 +82,21 @@ class HomeSection extends StatelessWidget {
       if (email.trim().isNotEmpty)
         SocialIcon(
           svgPath: 'assets/icons/gmailicon.svg',
-          url: 'mailto:$email',
+          url: 'mailto:${email.trim()}',
           tooltip: 'Email',
         ),
     ];
 
+    // Phones: centre everything under the photo. Laptop: unchanged.
+    final centered = MediaQuery.sizeOf(context).width <= 800;
+    final textAlign = centered ? TextAlign.center : TextAlign.start;
+    final wrapAlign = centered ? WrapAlignment.center : WrapAlignment.start;
+    final screenW = MediaQuery.sizeOf(context).width;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         if (name.trim().isNotEmpty) ...[
           const Text(
@@ -100,13 +111,17 @@ class HomeSection extends StatelessWidget {
         ],
         Text(
           name,
+          textAlign: textAlign,
           style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 color: AppColors.purple,
+                fontSize: screenW < 600 ? 40 : (centered ? 48 : null),
+                height: 1.15,
               ),
         ).animate(delay: 100.ms).fadeIn(duration: 600.ms).slideX(begin: -0.2),
         const SizedBox(height: 12),
         Text(
           title,
+          textAlign: textAlign,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: isDark
                     ? AppColors.textPrimaryDark
@@ -117,6 +132,7 @@ class HomeSection extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           subtitle,
+          textAlign: textAlign,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -124,13 +140,15 @@ class HomeSection extends StatelessWidget {
               ),
         ).animate(delay: 300.ms).fadeIn(duration: 600.ms),
         const SizedBox(height: 40),
-        Row(
+        Wrap(
+          spacing: 16,
+          runSpacing: 12,
+          alignment: wrapAlign,
           children: [
             ElevatedButton(
               onPressed: onViewProjects,
               child: const Text(AppStrings.viewProjects),
             ),
-            const SizedBox(width: 16),
             OutlinedButton(
               onPressed: hasCv ? onDownloadCV : null,
               child: const Text(AppStrings.downloadCV),
@@ -142,6 +160,7 @@ class HomeSection extends StatelessWidget {
           Wrap(
             spacing: 16,
             runSpacing: 16,
+            alignment: wrapAlign,
             children: socialItems,
           ).animate(delay: 500.ms).fadeIn(duration: 600.ms),
         ],
@@ -151,7 +170,8 @@ class HomeSection extends StatelessWidget {
 
   Widget _buildPhoto(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 800;
-    final photoSize = isWide ? 340.0 : 260.0;
+    final screenW = MediaQuery.sizeOf(context).width;
+    final photoSize = isWide ? 340.0 : (screenW < 400 ? 210.0 : 250.0);
 
     return Container(
       width: photoSize,
@@ -246,17 +266,16 @@ class _ProfilePhotoState extends State<_ProfilePhoto> {
 
     final imageUrl = _candidateUrls[_currentIndex];
 
-    return CachedNetworkImage(
-      key: ValueKey(imageUrl),
-      imageUrl: imageUrl,
+    return NetImage(
+      url: imageUrl,
       fit: BoxFit.cover,
-      placeholder: (context, url) => const Center(
+      loading: (context) => const Center(
         child: CircularProgressIndicator(
           color: AppColors.purple,
           strokeWidth: 2,
         ),
       ),
-      errorWidget: (context, url, error) {
+      error: (context) {
         _tryNextCandidate();
         return _currentIndex < _candidateUrls.length - 1
             ? const Center(

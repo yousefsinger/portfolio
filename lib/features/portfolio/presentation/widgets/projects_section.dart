@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/section_title.dart';
+import '../../../../core/utils/snap_carousel.dart';
 import '../cubit/pagination_cubit.dart';
 import '../../domain/entities/portfolio_entities.dart';
 import 'project_card.dart';
@@ -48,14 +49,14 @@ class _ProjectsSectionState extends State<ProjectsSection> {
     return BlocProvider.value(
       value: _paginationCubit,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 60,
-          vertical: AppSizes.sectionPadding,
+        padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 700 ? 0 : 60,
+          vertical: MediaQuery.sizeOf(context).width < 700 ? 24 : AppSizes.sectionPadding,
         ),
         child: Column(
           children: [
             const SectionTitle(title: AppStrings.projects),
-            const SizedBox(height: 48),
+            SizedBox(height: MediaQuery.sizeOf(context).width < 700 ? 28 : 48),
             LayoutBuilder(
               builder: (context, constraints) {
                 final crossAxisCount = constraints.maxWidth > 1000
@@ -70,6 +71,13 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                 return BlocBuilder<PaginationCubit<ProjectEntity>,
                     PaginationState<ProjectEntity>>(
                   builder: (context, state) {
+                    if (SnapCarousel.useOn(context)) {
+                      return SnapCarousel(
+                        children: [
+                          for (final item in state.items) ProjectCard(project: item, delay: 0),
+                        ],
+                      );
+                    }
                     return Column(
                       children: [
                         Wrap(

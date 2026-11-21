@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/utils/net_image.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/utils/drive_url_helper.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../domain/entities/portfolio_entities.dart';
 
@@ -79,17 +78,16 @@ class _ProjectCardState extends State<ProjectCard> {
                       itemCount: project.imageUrls.length,
                       onPageChanged: (index) => _currentPage = index,
                       itemBuilder: (context, index) {
-                        return CachedNetworkImage(
-                          imageUrl: convertDriveUrl(project.imageUrls[index]),
+                        return NetImage(
+                          url: project.imageUrls[index],
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
+                          loading: (context) => const Center(
                             child: CircularProgressIndicator(
                               color: AppColors.purple,
                               strokeWidth: 2,
                             ),
                           ),
-                          errorWidget: (context, url, error) =>
-                              _imagePlaceholder(),
+                          error: (context) => _imagePlaceholder(),
                         );
                       },
                     )

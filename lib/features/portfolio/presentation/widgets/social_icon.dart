@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/email_launcher.dart';
 
 class SocialIcon extends StatefulWidget {
   final IconData? icon;
@@ -46,7 +47,12 @@ class _SocialIconState extends State<SocialIcon> {
         message: widget.tooltip,
         child: GestureDetector(
           onTap: () async {
-            final uri = Uri.parse(widget.url.trim());
+            final url = widget.url.trim();
+            if (url.startsWith('mailto:')) {
+              await launchEmail(url);
+              return;
+            }
+            final uri = Uri.parse(url);
             if (await canLaunchUrl(uri)) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
             }

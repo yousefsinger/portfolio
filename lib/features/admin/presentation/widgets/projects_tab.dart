@@ -312,6 +312,19 @@ class _ProjectsTabState extends State<ProjectsTab> {
                                           size: 40)),
                             ),
                             const SizedBox(height: 16),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: ImageUploadButton(
+                                // Each upload is added to the list, so a
+                                // project can have several images.
+                                onUploaded: (url) => setState(() {
+                                  final current = imgUrlsCtrl.text.trim();
+                                  imgUrlsCtrl.text =
+                                      current.isEmpty ? url : '$current, $url';
+                                }),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
                             TextField(
                               controller: imgUrlsCtrl,
                               decoration: const InputDecoration(

@@ -1,3 +1,21 @@
+/// For Cloudinary image links that don't already carry a transformation,
+/// asks Cloudinary for an optimized copy: best format for the browser
+/// (WebP/AVIF), automatic quality, and at most 1600px wide. Other URLs are
+/// returned unchanged.
+String optimizeCloudinaryUrl(String url) {
+  const marker = '/image/upload/';
+  final i = url.indexOf(marker);
+  if (!url.contains('res.cloudinary.com') || i == -1) return url;
+
+  final rest = url.substring(i + marker.length);
+  // Untransformed links continue with the version ("v1234/") or the file.
+  final hasTransformation = RegExp(r'^[a-z]{1,3}_[^/]*/').hasMatch(rest);
+  if (hasTransformation) return url;
+
+  return '${url.substring(0, i + marker.length)}'
+      'f_auto,q_auto,w_1600,c_limit/$rest';
+}
+
 String convertDriveUrl(String url) {
   final normalizedUrl = url.trim();
   if (normalizedUrl.isEmpty) return normalizedUrl;
@@ -7,8 +25,8 @@ String convertDriveUrl(String url) {
     return 'https://lh3.googleusercontent.com/d/$fileId';
   }
 
-  // Not a Google Drive URL — return as-is
-  return normalizedUrl;
+  // Not a Google Drive URL
+  return optimizeCloudinaryUrl(normalizedUrl);
 }
 
 String buildDrivePreviewUrl(String url) {
@@ -29,7 +47,7 @@ List<String> buildDriveImageCandidates(String url) {
 
   final fileId = extractDriveFileId(normalizedUrl);
   if (fileId == null) {
-    return [normalizedUrl];
+    return [optimizeCloudinaryUrl(normalizedUrl)];
   }
 
   return {

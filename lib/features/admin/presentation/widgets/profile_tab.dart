@@ -5,6 +5,7 @@ import '../../../../core/utils/drive_url_helper.dart';
 import '../../../../core/utils/gradient_border_card.dart';
 import '../../../portfolio/domain/entities/portfolio_entities.dart';
 import '../cubit/admin_cubit.dart';
+import 'admin_helpers.dart';
 
 class ProfileTab extends StatefulWidget {
   final ProfileEntity profile;
@@ -120,9 +121,16 @@ class _ProfileTabState extends State<ProfileTab> {
                                   size: 60, color: AppColors.purple),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
+                      ImageUploadButton(
+                        label: 'Upload photo',
+                        onUploaded: (url) => _photoUrlCtrl.text = url,
+                      ),
+                      const SizedBox(height: 8),
                       const Text(
-                        'Paste photo URL below',
+                        'Upload a photo, or paste a URL below. '
+                        'Then press Save Changes.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.cyan,
                           fontSize: 12,

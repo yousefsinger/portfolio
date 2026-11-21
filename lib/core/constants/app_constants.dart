@@ -34,6 +34,12 @@ class AppStrings {
   static const String publicKey = 'g1n7so2_FgyRRx4dM';
   static const String endpoint = 'https://api.emailjs.com/api/v1.0/email/send';
 
+  // Cloudinary (image hosting). The preset must be an *unsigned* upload
+  // preset created in Cloudinary: Settings > Upload > Upload presets.
+  static const String cloudinaryCloudName = 'yoqbyyb9';
+  static const String cloudinaryUploadPreset = 'portfolio_unsigned';
+  static const String cloudinaryFolder = 'portfolio';
+
   // Nav
   static const String home = 'Home';
   static const String experience = 'Experience';

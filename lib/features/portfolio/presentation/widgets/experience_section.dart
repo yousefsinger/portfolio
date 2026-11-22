@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/gradient_border_card.dart';
+import '../../../../core/utils/equal_height_grid.dart';
 import '../../../../core/utils/section_title.dart';
 import '../../../../core/utils/snap_carousel.dart';
 import '../cubit/pagination_cubit.dart';
@@ -73,10 +74,10 @@ class _ExperienceSectionState extends State<ExperienceSection> {
                   }
                   return Column(
                     children: [
-                      Wrap(
-                        spacing: 20,
-                        runSpacing: 20,
-                        children: List.generate(state.visibleItems.length, (index) {
+                      EqualHeightGrid(
+                          columns: crossAxisCount,
+                          spacing: 20,
+                          children: List.generate(state.visibleItems.length, (index) {
                           return SizedBox(
                             width: cardWidth,
                             child: _ExperienceCard(

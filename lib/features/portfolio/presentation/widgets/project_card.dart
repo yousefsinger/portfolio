@@ -94,69 +94,74 @@ class _ProjectCardState extends State<ProjectCard> {
                   : _imagePlaceholder(),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  project.title,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  project.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: project.tags.map((tag) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.cyan.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.cyan.withValues(alpha: 0.4),
+          // Fills the card height (cards in a row share one height), so the
+          // links sit at the bottom of every card.
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    project.title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      child: Text(
-                        tag,
-                        style: const TextStyle(
-                          color: AppColors.cyan,
-                          fontSize: 11,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                if (_links.isNotEmpty) ...[
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    project.description,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 16),
                   Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: [
-                      for (final link in _links)
-                        TextButton.icon(
-                          onPressed: () => _open(link.url),
-                          icon: Icon(link.icon, size: 16),
-                          label: Text(link.label),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.purple,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: project.tags.map((tag) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.cyan.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.cyan.withValues(alpha: 0.4),
                           ),
                         ),
-                    ],
+                        child: Text(
+                          tag,
+                          style: const TextStyle(
+                            color: AppColors.cyan,
+                            fontSize: 11,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
+                  const Spacer(),
+                  if (_links.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: [
+                        for (final link in _links)
+                          TextButton.icon(
+                            onPressed: () => _open(link.url),
+                            icon: Icon(link.icon, size: 16),
+                            label: Text(link.label),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.purple,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],

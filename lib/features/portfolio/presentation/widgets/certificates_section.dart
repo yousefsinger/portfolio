@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/gradient_border_card.dart';
+import '../../../../core/utils/equal_height_grid.dart';
 import '../../../../core/utils/section_title.dart';
 import '../../../../core/utils/snap_carousel.dart';
 import '../cubit/pagination_cubit.dart';
@@ -77,11 +78,10 @@ class _CertificatesSectionState extends State<CertificatesSection> {
                   }
                   return Column(
                     children: [
-                      Wrap(
-                        spacing: 20,
-                        runSpacing: 20,
-                        children:
-                            List.generate(state.visibleItems.length, (index) {
+                      EqualHeightGrid(
+                          columns: crossAxisCount,
+                          spacing: 20,
+                          children: List.generate(state.visibleItems.length, (index) {
                           return SizedBox(
                             width: cardWidth,
                             child: _CertificateCard(
@@ -191,6 +191,8 @@ class _CertificateCard extends StatelessWidget {
               ),
             ],
           ),
+          // Pushes the button to the bottom (cards in a row share one height).
+          const Spacer(),
           if ((certificate.credentialUrl?.trim().isNotEmpty ?? false)) ...[
             const SizedBox(height: 16),
             OutlinedButton.icon(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/equal_height_grid.dart';
 import '../../../../core/utils/section_title.dart';
 import '../../../../core/utils/snap_carousel.dart';
 import '../cubit/pagination_cubit.dart';
@@ -80,11 +81,10 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                     }
                     return Column(
                       children: [
-                        Wrap(
+                        EqualHeightGrid(
+                          columns: crossAxisCount,
                           spacing: 20,
-                          runSpacing: 20,
-                          children:
-                              List.generate(state.visibleItems.length, (index) {
+                          children: List.generate(state.visibleItems.length, (index) {
                             return SizedBox(
                               width: cardWidth,
                               child: ProjectCard(
